@@ -119,7 +119,6 @@ fi
 
 ##My stuff
 
-
 dockermachineeval() {
   eval "$(docker-machine env $1)"
 }
@@ -167,9 +166,13 @@ GREEN="\[\033[01;32m\]"
 BLUE="\[\033[01;34m\]"
 YELLOW="\[\033[0;33m\]"
 function parse_bash {
-PS_ALT="\[\033[\$((COLUMNS-$(echo $(__git_ps1) | wc -c)-$(echo $(date +"[%H:%M:%S]") | wc -c)-$(echo $(__docker_machine_ps1) | wc -c)))G\] $RED[\t]$YELLOW\$(__git_ps1)$BLUE\$(__docker_machine_ps1)"
-PS_INFO="$GREEN\w$RESET"
-PS1="${PS_INFO} ${PS_ALT}\n${RESET}\\W: "
+  PS_INFO="$GREEN\w$RESET"
+  EXTRA_LEN=$(($(dirs -0|wc -c)+$(echo $(__git_ps1) | wc -c)+$(echo $(__docker_machine_ps1) | wc -c) + $(echo $(date +"[%H:%M:%S]") | wc -c)))
+  PS_ALT="\[\033[\$((COLUMNS-$(echo $(__git_ps1) | wc -c)-$(echo $(date +"[%H:%M:%S]") | wc -c)-$(echo $(__docker_machine_ps1) | wc -c)))G\] $RED[\t]$YELLOW\$(__git_ps1)$BLUE\$(__docker_machine_ps1)"
+  if (("$EXTRA_LEN" > "$COLUMNS")); then
+    PS_ALT="\[\033[\$((COLUMNS-$(echo $(__git_ps1) | wc -c)-$(echo $(__docker_machine_ps1) | wc -c)))G\] $YELLOW\$(__git_ps1)$BLUE\$(__docker_machine_ps1)"
+  fi
+  PS1="${PS_INFO} ${PS_ALT}\n${RESET}\\W: "
 }
 PROMPT_COMMAND=parse_bash
 export PS1
